@@ -1,3 +1,4 @@
+use crate::app::{SectionLayout, State};
 use makepad_widgets::*;
 
 live_design!{
@@ -95,6 +96,22 @@ live_design!{
         padding: 9.0
         text: "page"
     }    
+
+    NavMenu = <View> {
+        width: Fill,
+        height: Fit,
+        margin: 0.0
+        flow: Right,
+        padding: 0.0,
+        spacing: 25.0,
+        align: {x: 0.5, y: 0.5}
+
+        // These will be populated when site config is loaded            
+        <NavButton> {}
+        <NavButton> {}
+        <NavButton> {}
+        <NavButton> {}
+    }
         
     Header = <RoundedYView> {
         width: Fill,
@@ -122,25 +139,16 @@ live_design!{
         spacing: 10.0
 
         draw_bg: {color: (COLOR_ALERT), inset: vec4(-0.5, 0.0, -1.0, -1.0), radius: vec2(4.5, 0.5)}
-
-        text: "alert"
-
-    }
-        
-    NavMenu = <View> {
+        text = <Label> {
             width: Fill,
-            height: Fit,
-            margin: 0.0
-            flow: Right,
-            padding: 0.0,
-            spacing: 25.0,
-            align: {x: 0.5, y: 0.5}
-
-            // These will be populated when site config is loaded            
-            <NavButton> {}
-            <NavButton> {}
-            <NavButton> {}
-            <NavButton> {}
+            height: Fit
+            draw_text: {
+                wrap: Word,
+                text_style: <TEXT_P> {},
+                color: (COLOR_P)
+            }
+            text: "no alert"
+        }
     }
         
     LineH = <RoundedView> {
@@ -158,7 +166,16 @@ live_design!{
         flow: Right,
         padding: 0.0,
         spacing: 0.0,
-        text: ""
+        text = <Label> {
+            width: Fill,
+            height: Fit
+            draw_text: {
+                wrap: Word,
+                text_style: <TEXT_P> {},
+                color: (COLOR_P)
+            }
+            text: "no text"
+        }
     }
 
     ImageSection = <View> {
@@ -191,7 +208,16 @@ live_design!{
         flow: Right,
         padding: 0.0,
         spacing: 0.0,
-        text: ""
+        text = <Label> {
+            width: Fill,
+            height: Fit
+            draw_text: {
+                wrap: Word,
+                text_style: <TEXT_P> {},
+                color: (COLOR_P)
+            }
+            text: "no text"
+        }
     }
 
     TextImageLSection = <View> {
@@ -208,7 +234,16 @@ live_design!{
             width: Fill,
             height: 200
         }
-        text: ""
+        text = <Label> {
+            width: Fill,
+            height: Fit
+            draw_text: {
+                wrap: Word,
+                text_style: <TEXT_P> {},
+                color: (COLOR_P)
+            }
+            text: "no text"
+        }
     }
 
     TextImageRSection = <View> {
@@ -218,7 +253,16 @@ live_design!{
         padding: 0.0,
         spacing: 0.0
 
-        text: ""
+        text = <Label> {
+            width: Fill,
+            height: Fit
+            draw_text: {
+                wrap: Word,
+                text_style: <TEXT_P> {},
+                color: (COLOR_P)
+            }
+            text: "no text"
+        }
         image = <Image> {
             source: (IMG_A),
             //image_scale: 1.0,
@@ -229,9 +273,21 @@ live_design!{
     }
 
     ImageGridSection = <View> {}
+       
+    Page = {{Page}} {
+        // This will be populated when page data is loaded 
+        sections = <PortalList> {
+        }
+    }
 
-    // This will be populated when page data is loaded    
-    Page = {{Page}} {}
+    /*NewsFeed ={{NewsFeed}}{
+        list = <PortalList>{
+            TopSpace = <View> {height: 80}
+            Post = <Post> {}
+            PostImage = <PostImage> {}
+            BottomSpace = <View> {height: 100}
+        }
+    }*/
     
     // This is the top level layout
     Ui = <Window> {
@@ -256,7 +312,8 @@ live_design!{
             <View> {
                 flow: Down
                 <Header> {}
-                <Alert> {}
+                alert_message = <Alert> {}
+                <FillerY> {}
             }
         }
     }
@@ -270,24 +327,34 @@ pub struct Page{
 // features of the page widget
 impl Widget for Page{
     fn draw_walk(&mut self, cx:&mut Cx2d, scope:&mut Scope, walk:Walk)->DrawStep{
-        while let Some(page) =  self.view.draw_walk(cx, scope, walk).step(){
-            if let Some(mut list) = page.as_portal_list().borrow_mut() {
-                list.set_item_range(cx, 0, 1000);
-                while let Some(item_id) = list.next_visible_item(cx) {
-                    let template = match item_id {
-                        0 => live_id!(TopSpace),
-                        x if x % 5 == 0 => live_id!(PostImage),
-                        _ => live_id!(Post)
-                    };
-                    let item = list.item(cx, item_id, template).unwrap();
-                    let text = match item_id % 4 {
-                        1 => format!("Message id: {}", item_id),
-                        2 => format!("How are you\nItem id: {}", item_id),
-                        3 => format!("Item id: {}", item_id),
-                        _ => format!("Message 4 id {}", item_id),
-                    };
-                    item.label(id!(content.text)).set_text(&text);
-                    item.draw_all(cx, &mut Scope::empty());
+        while let Some(page_view) =  self.view.draw_walk(cx, scope, walk).step(){
+            if let Some(state) = scope.data.get_mut::<State>() {
+                let page = state.pages.iter().find(|&p| p.name == state.config.default_page).unwrap();
+                if let Some(mut section_views) = page_view.as_portal_list().borrow_mut() {
+                    section_views.set_item_range(cx, 0, page.sections.len() - 1);
+                    // Build the sectionViews from default page data
+                    for section in &page.sections {
+                        if let Some(section_view_id) = section_views.next_visible_item(cx) {
+                            let template = match section.layout {
+                                SectionLayout::Text => live_id!(TextSection),
+                                SectionLayout::Image => live_id!(ImageSection),
+                                SectionLayout::Title => live_id!(TitleSection),
+                                SectionLayout::Space => live_id!(SpaceSection),
+                                SectionLayout::TextImageL => live_id!(TextImageLSection),
+                                SectionLayout::TextImageR => live_id!(TextImageRSection),
+                                SectionLayout::ImageGrid => live_id!(ImageGridSection),
+                            };
+                            let section_view = section_views.item(cx, section_view_id, template).unwrap();
+                            if !section.text.is_empty() {
+                                section_view.label(id!(text)).set_text(&section.text);
+                            }
+                            if !section.image_url.is_empty() {
+                                section_view.image(id!(image)).load_image_dep_by_path(cx, &section.image_url)
+                                        .unwrap();
+                            }
+                            section_view.draw_all(cx, &mut Scope::empty());
+                        }
+                    }
                 }
             }
         }
@@ -295,5 +362,5 @@ impl Widget for Page{
     }
     fn handle_event(&mut self, cx:&mut Cx, event:&Event, scope:&mut Scope){
         self.view.handle_event(cx, event, scope)
-    }
+    } 
 }

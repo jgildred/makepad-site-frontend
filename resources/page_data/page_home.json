@@ -1,0 +1,13 @@
+{
+  "name": "Home",
+  "sections": [
+    {
+      "type": "Text",
+      "text": "this is the text of the first section"
+    },
+    {
+      "type": "Text",
+      "text": "this is the text of the first section"
+    }
+  ]
+}

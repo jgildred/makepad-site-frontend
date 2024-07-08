@@ -1,0 +1,4 @@
+{
+  "page_order": [ "home", "products", "about" ],
+  "default_page": "home"
+}
