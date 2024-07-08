@@ -4,10 +4,11 @@ live_design!{
     import makepad_widgets::base::*;
     import makepad_widgets::theme_desktop_dark::*;
     import makepad_draw::shader::std::*;
+    
     IMG_A = dep("crate://self/resources/neom-THlO6Mkf5uI-unsplash.jpg")
     IMG_PROFILE_A = dep("crate://self/resources/profile_1.jpg")
     IMG_PROFILE_B = dep("crate://self/resources/profile_2.jpg")
-    LOGO = dep("crate://self/resources/logo.svg")
+    LOGO = dep("crate://self/resources/scramble_logo.svg")
     ICO_FAV = dep("crate://self/resources/icon_favorite.svg")
     ICO_COMMENT = dep("crate://self/resources/icon_comment.svg")
     ICO_REPLY = dep("crate://self/resources/icon_reply.svg")
@@ -32,7 +33,8 @@ live_design!{
     }
         
     COLOR_BG = #xfff8ee
-    COLOR_BRAND = #xf88
+    COLOR_ALERT = #xf88379
+    COLOR_BRAND = #xfff8ee
     COLOR_BRAND_HOVER = #xf66
     COLOR_META_TEXT = #xaaa
     COLOR_META = #xccc
@@ -65,7 +67,7 @@ live_design!{
         text: ""
     }
         
-    IconButton = <Button> {
+    NavButton = <Button> {
         draw_text: {
             instance hover: 0.0
             instance pressed: 0.0
@@ -84,21 +86,6 @@ live_design!{
                 )
             }
         }
-        draw_icon: {
-            svg_file: (ICO_FAV),
-            fn get_color(self) -> vec4 {
-                return mix(
-                    mix(
-                        (COLOR_META),
-                        (COLOR_BRAND),
-                        self.hover
-                    ),
-                    (COLOR_BRAND_HOVER),
-                    self.pressed
-                )
-            }
-        }
-        icon_walk: {width: 7.5, height: Fit, margin: {left: 5.0}}
         draw_bg: {
             fn pixel(self) -> vec4 {
                 let sdf = Sdf2d::viewport(self.pos * self.rect_size);
@@ -106,9 +93,8 @@ live_design!{
             }
         }
         padding: 9.0
-        text: "1"
-    }
-        
+        text: "page"
+    }    
         
     Header = <RoundedYView> {
         width: Fill,
@@ -123,20 +109,25 @@ live_design!{
             width: Fill,
             margin: {top: 0.0}
             icon_walk: {width: Fit, height: 27.0}
-        }
-                
+        }   
+
+        <NavMenu> {}       
     }
-        
-    Menu = <RoundedYView> {
+
+    Alert = <RoundedYView> {
         width: Fill,
-        height: 80
+        height: 40,
         flow: Right,
         padding: 10.0,
         spacing: 10.0
-                
-        draw_bg: {color: (COLOR_OVERLAY_BG), inset: vec4(-0.5, 0.0, -1.0, -1.0), radius: vec2(4.5, 0.5)}
-                
-        <View> {
+
+        draw_bg: {color: (COLOR_ALERT), inset: vec4(-0.5, 0.0, -1.0, -1.0), radius: vec2(4.5, 0.5)}
+
+        text: "alert"
+
+    }
+        
+    NavMenu = <View> {
             width: Fill,
             height: Fit,
             margin: 0.0
@@ -144,13 +135,12 @@ live_design!{
             padding: 0.0,
             spacing: 25.0,
             align: {x: 0.5, y: 0.5}
-                        
-            <IconButton> {draw_icon: {svg_file: (ICO_HOME)} icon_walk: {width: 30.0, height: Fit}, text: ""}
-            <IconButton> {draw_icon: {svg_file: (ICO_FIND)} icon_walk: {width: 18.0, height: Fit}, text: ""}
-            <IconButton> {draw_icon: {svg_file: (ICO_ADD)} icon_walk: {width: 40.0, height: Fit}, text: ""}
-            <IconButton> {draw_icon: {svg_file: (ICO_LIKES)} icon_walk: {width: 20.0, height: Fit}, text: ""}
-            <IconButton> {draw_icon: {svg_file: (ICO_USER)} icon_walk: {width: 15.0, height: Fit}, text: ""}
-        }
+
+            // These will be populated when site config is loaded            
+            <NavButton> {}
+            <NavButton> {}
+            <NavButton> {}
+            <NavButton> {}
     }
         
     LineH = <RoundedView> {
@@ -162,144 +152,88 @@ live_design!{
         draw_bg: {color: (COLOR_DIVIDER)}
     }
         
-    PostMenu = <View> {
+    TextSection = <View> {
         width: Fill,
-        height: Fit,
-        margin: 0.0
-        flow: Down,
+        height: Fit
+        flow: Right,
         padding: 0.0,
-        spacing: 0.0
-                
-        <View> {
-            width: Fill,
-            height: Fit,
-            margin: 0.0
-            flow: Right,
-            padding: 0.0,
-            spacing: 10.0
-                        
-            likes = <IconButton> {draw_icon: {svg_file: (ICO_FAV)} icon_walk: {width: 15.0, height: Fit}}
-            comments = <IconButton> {draw_icon: {svg_file: (ICO_COMMENT)} icon_walk: {width: 15.0, height: Fit}, text: "7"}
-                        
-            <FillerX> {}
-            reply = <IconButton> {draw_icon: {svg_file: (ICO_REPLY)} icon_walk: {width: 15.0, height: Fit}, text: ""}
-        }
+        spacing: 0.0,
+        text: ""
     }
-        
-    Post = <View> {
-        width: Fill,
-        height: Fit,
-        margin: 0.0
-        flow: Down,
-        padding: 0.0,
-        spacing: 0.0
-                
-        body = <View> {
-            width: Fill,
-            height: Fit
-            flow: Right,
-            padding: 10.0,
-            spacing: 10.0
-            profile = <View> {
-                width: Fit,
-                height: Fit,
-                margin: {top: 7.5}
-                flow: Down,
-                padding: 0.0
-                profile_img = <Image> {
-                    source: (IMG_PROFILE_A)
-                    margin: 0,
-                    width: 50.,
-                    height: 50.
-                    draw_bg: {
-                        fn pixel(self) -> vec4 {
-                            let sdf = Sdf2d::viewport(self.pos * self.rect_size);
-                            let c = self.rect_size * 0.5;
-                            sdf.circle(c.x, c.y, c.x - 2.)
-                            sdf.fill_keep(self.get_color());
-                            sdf.stroke((COLOR_PROFILE_CIRCLE), 1);
-                            return sdf.result
-                        }
-                    }
-                }
-            }
-            content = <View> {
-                width: Fill,
-                height: Fit
-                flow: Down,
-                padding: 0.0
-                                
-                meta = <Label> {
-                    margin: {bottom: 10.0, top: 10.0}
-                    draw_text: {
-                        text_style: <TEXT_SUB> {},
-                        color: (COLOR_META_TEXT)
-                    }
-                    text: "@User 13h"
-                }
-                text = <Label> {
-                    width: Fill,
-                    height: Fit
-                    draw_text: {
-                        wrap: Word,
-                        text_style: <TEXT_P> {},
-                        color: (COLOR_P)
-                    }
-                    text: ""
-                }
-                                
-                <LineH> {
-                    margin: {top: 10.0, bottom: 5.0}
-                }
-                                
-                <PostMenu> {}
-            }
-        }
-                
-        <LineH> {
-            draw_bg: {color: (COLOR_DIVIDER_DARK)}
-        }
-    }
-        
-    PostImage = <View> {
+
+    ImageSection = <View> {
         width: Fill,
         height: Fit
         flow: Down,
         padding: 0.0,
         spacing: 0.0
                 
-        hero = <Image> {
+        image = <Image> {
             source: (IMG_A),
             //image_scale: 1.0,
             margin: 0,
             width: Fill,
             height: 200
         }
+    }
+
+    SpaceSection = <View> {
+        width: Fill,
+        height: Fit
+        flow: Right,
+        padding: 0.0,
+        spacing: 0.0
+    }
+
+    TitleSection = <View> {
+        width: Fill,
+        height: Fit
+        flow: Right,
+        padding: 0.0,
+        spacing: 0.0,
+        text: ""
+    }
+
+    TextImageLSection = <View> {
+        width: Fill,
+        height: Fit
+        flow: Right,
+        padding: 0.0,
+        spacing: 0.0
                 
-        post = <Post> {
-            margin: {top: -45.0}
-            body = {
-                content = {
-                    meta = {
-                        margin: {bottom: 30.0, top: 10.0}
-                        draw_text: {
-                            color: (COLOR_META_INV)
-                        }
-                    }
-                }
-            }
+        image = <Image> {
+            source: (IMG_A),
+            //image_scale: 1.0,
+            margin: 0,
+            width: Fill,
+            height: 200
+        }
+        text: ""
+    }
+
+    TextImageRSection = <View> {
+        width: Fill,
+        height: Fit
+        flow: Right,
+        padding: 0.0,
+        spacing: 0.0
+
+        text: ""
+        image = <Image> {
+            source: (IMG_A),
+            //image_scale: 1.0,
+            margin: 0,
+            width: Fill,
+            height: 200
         }
     }
-        
-    Blog ={{Blog}}{
-        list = <PortalList>{
-            TopSpace = <View> {height: 80}
-            Post = <Post> {}
-            PostImage = <PostImage> {}
-            BottomSpace = <View> {height: 100}
-        }
-    }
+
+    ImageGridSection = <View> {}
+
+    // This will be populated when page data is loaded    
+    Page = {{Page}} {}
     
+    // This is the top level layout
     Ui = <Window> {
         window: {inner_size: vec2(428, 926)},
         show_bg: true
@@ -316,29 +250,28 @@ live_design!{
                 x: 0.0,
                 y: 0.0
             },
-                                                            
-            blog = <Blog>{}
+            
+            page = <Page> {}
                                                             
             <View> {
                 flow: Down
                 <Header> {}
-                <FillerY> {}
-                <Menu> {}
+                <Alert> {}
             }
         }
     }
 }
 
 #[derive(Live, LiveHook, Widget)]
-pub struct Blog{ 
+pub struct Page{ 
     #[deref] view:View
 }
 
-// features of the blog widget
-impl Widget for Blog{
+// features of the page widget
+impl Widget for Page{
     fn draw_walk(&mut self, cx:&mut Cx2d, scope:&mut Scope, walk:Walk)->DrawStep{
-        while let Some(item) =  self.view.draw_walk(cx, scope, walk).step(){
-            if let Some(mut list) = item.as_portal_list().borrow_mut() {
+        while let Some(page) =  self.view.draw_walk(cx, scope, walk).step(){
+            if let Some(mut list) = page.as_portal_list().borrow_mut() {
                 list.set_item_range(cx, 0, 1000);
                 while let Some(item_id) = list.next_visible_item(cx) {
                     let template = match item_id {
@@ -354,8 +287,6 @@ impl Widget for Blog{
                         _ => format!("Message 4 id {}", item_id),
                     };
                     item.label(id!(content.text)).set_text(&text);
-                    item.button(id!(likes)).set_text(&format!("{}", item_id % 23));
-                    item.button(id!(comments)).set_text(&format!("{}", item_id % 6));
                     item.draw_all(cx, &mut Scope::empty());
                 }
             }
