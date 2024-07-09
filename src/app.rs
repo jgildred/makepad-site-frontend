@@ -58,13 +58,37 @@ impl MatchEvent for App {
                         live_id!(LoadPage) => {
                             if response.status_code == 200 {
                                 log!("i goh a text!");
-                                if let Some(page) = response.get_json_body::<Page>().ok() {
-                                    log!("page: {:?}", page);
+                                match response.get_json_body::<Page>() {
+                                    Ok(page) => {
+                                        log!("page: {:?}", page);
                                     self.state.pages.push(page);
-                                }
-                                else {
-                                    log!("Received bad data for page.");
-                                    self.flash_alert(cx, "Received bad data for page.".to_string());
+                                    }
+                                    Err(e) => {
+                                        let s1 = Section {
+                                            layout: SectionLayout::Text,
+                                            padding: 0.0,
+                                            text: "something".to_string(),
+                                            image_url: "http://host/image.jpg".to_string(),
+                                        };
+                                        let s2 = Section {
+                                            layout: SectionLayout::Text,
+                                            padding: 0.0,
+                                            text: "other".to_string(),
+                                            image_url: "http://host/image2.jpg".to_string(),
+                                        };
+                                        let mut ss = Vec::new();
+                                        ss.push(s1);
+                                        ss.push(s2);
+                                        let p = Page {
+                                            name: "Home".to_string(),
+                                            sections: ss
+                                        };
+                                        let j = "{\"name\":\"Home\",\"sections\":[{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"something\",\"image_url\":\"http://host/image.jpg\"},{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"other\",\"image_url\":\"http://host/image2.jpg\"}]}";
+                                        
+                                        //log!("test page: {:?}", p);
+                                        log!("Received bad data for page: {:?}", e);
+                                        self.flash_alert(cx, "Received bad data for page.".to_string());
+                                    }
                                 }
                             } else {
                                 self.flash_alert(cx, "Failed to get page data.".to_string());
@@ -110,7 +134,7 @@ pub enum SectionLayout {
 #[derive(SerJson, DeJson, Debug)]
 pub struct Section {
     pub layout: SectionLayout,
-    pub padding: i8,
+    pub padding: f32,
     pub text: String,
     pub image_url: String,
 }

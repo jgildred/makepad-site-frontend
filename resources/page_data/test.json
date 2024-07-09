@@ -1,0 +1,26 @@
+{
+  "name":"Home",
+  "sections":
+  [
+    {
+      "layout":
+      {
+        "Text":[]
+      },
+      "padding":0,
+      "text":"something",
+      "image_url":"http://host/image.jpg"
+    },
+    {
+      "layout":
+      {
+        "Text":[]
+      },
+      "padding":0,
+      "text":"other",
+      "image_url":"http://host/image2.jpg"
+    }
+  ]
+}
+
+"{\"name\":\"Home\",\"sections\":[{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"something\",\"image_url\":\"http://host/image.jpg\"},{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"other\",\"image_url\":\"http://host/image2.jpg\"}]}"
