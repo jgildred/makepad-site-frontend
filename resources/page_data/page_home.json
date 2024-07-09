@@ -8,7 +8,7 @@
       "image_url": ""
     },
     {
-      "type": { "Text": [] },
+      "layout": { "Text": [] },
       "padding": 0,
       "text": "this is the text of the first section",
       "image_url": ""

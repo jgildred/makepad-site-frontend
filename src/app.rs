@@ -85,7 +85,7 @@ impl MatchEvent for App {
                                         };
                                         let j = "{\"name\":\"Home\",\"sections\":[{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"something\",\"image_url\":\"http://host/image.jpg\"},{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"other\",\"image_url\":\"http://host/image2.jpg\"}]}";
                                         
-                                        //log!("test page: {:?}", p);
+                                        //log!("test page: {:?}", p.serialize_json());
                                         log!("Received bad data for page: {:?}", e);
                                         self.flash_alert(cx, "Received bad data for page.".to_string());
                                     }
