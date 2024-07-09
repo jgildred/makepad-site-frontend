@@ -1,5 +1,7 @@
 use makepad_micro_serde::*;
 use makepad_widgets::*;
+
+const SERVER_BASE_URL: &str = "http://127.0.0.1:3000";
    
 live_design!(
     import makepad_widgets::base::*;
@@ -37,18 +39,33 @@ impl MatchEvent for App {
                     match event.request_id {
                         live_id!(LoadConfig) => {
                             if response.status_code == 200 {
-                                self.state.config = response.get_json_body::<SiteConfig>().unwrap();
-                                // Load the default page data (eventually need to add page routes)
-                                for page in self.state.config.page_order.clone() {
-                                    self.state.load_page(cx, page);
+                                log!("Received response for config.");
+                                if let Some(config) = response.get_json_body::<SiteConfig>().ok() {
+                                    self.state.config = config;
+                                    // Load the default page data (eventually need to add page routes)
+                                    for page in self.state.config.page_order.clone() {
+                                        self.state.load_page(cx, page);
+                                    }
+                                }  
+                                else {
+                                    log!("Received bad data for site config.");
                                 }
                             } else {
+                                log!("Failed to get site config.");
                                 self.flash_alert(cx, "Failed to get site config.".to_string());
                             }
                         },
                         live_id!(LoadPage) => {
                             if response.status_code == 200 {
-                                self.state.pages.push(response.get_json_body::<Page>().unwrap());
+                                log!("i goh a text!");
+                                if let Some(page) = response.get_json_body::<Page>().ok() {
+                                    log!("page: {:?}", page);
+                                    self.state.pages.push(page);
+                                }
+                                else {
+                                    log!("Received bad data for page.");
+                                    self.flash_alert(cx, "Received bad data for page.".to_string());
+                                }
                             } else {
                                 self.flash_alert(cx, "Failed to get page data.".to_string());
                             }
@@ -74,23 +91,23 @@ impl AppMain for App {
 
 impl App {
     fn flash_alert(&mut self, cx: &mut Cx, alert_text: String) {
-        let label = self.ui.label(id!(alert_message));
+        let label = self.ui.label(id!(body.top.alert_message));
         label.set_text_and_redraw(cx, &alert_text);
     } 
 }
 
-#[derive(Default, SerJson, DeJson)]
+#[derive(Default, SerJson, DeJson, Debug)]
 pub struct SiteConfig {
     pub page_order: Vec<String>,
     pub default_page: String,
 }
 
-#[derive(SerJson, DeJson)]
+#[derive(SerJson, DeJson, Debug)]
 pub enum SectionLayout {
     Text, Image, Space, Title, TextImageL, TextImageR, ImageGrid
 }
 
-#[derive(SerJson, DeJson)]
+#[derive(SerJson, DeJson, Debug)]
 pub struct Section {
     pub layout: SectionLayout,
     pub padding: i8,
@@ -98,7 +115,7 @@ pub struct Section {
     pub image_url: String,
 }
 
-#[derive(SerJson, DeJson)]
+#[derive(SerJson, DeJson, Debug)]
 pub struct Page {
     pub name: String,
     pub sections: Vec<Section>,
@@ -112,16 +129,20 @@ pub struct State {
 
 impl State {
     fn load_config(&mut self, cx: &mut Cx) {
-        let completion_url ="/resources/page_data/config.json".to_string();
+        let completion_url = format!("{}/makepad_site_frontend/resources/page_data/config.json", SERVER_BASE_URL.to_string());
         let request_id = live_id!(LoadConfig);
         let request = HttpRequest::new(completion_url, HttpMethod::GET);
+        log!("sent: {}", &request.url);
         cx.http_request(request_id, request);
+        
     }
     fn load_page(&mut self, cx: &mut Cx, page_name: String) {
-        let completion_url = format!("/resources/page_data/page_{}.json", page_name);
+        let completion_url = format!("{}/makepad_site_frontend/resources/page_data/page_{}.json", SERVER_BASE_URL.to_string(), page_name.to_ascii_lowercase());
         let request_id = live_id!(LoadPage);
         let request = HttpRequest::new(completion_url, HttpMethod::GET);
+        log!("sent: {}", &request.url);
         cx.http_request(request_id, request);
+        
     }
 }
 

@@ -309,7 +309,7 @@ live_design!{
             
             page = <Page> {}
                                                             
-            <View> {
+            top = <View> {
                 flow: Down
                 <Header> {}
                 alert_message = <Alert> {}
