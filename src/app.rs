@@ -2,9 +2,6 @@ use makepad_micro_serde::*;
 use makepad_widgets::*;
 
 const SERVER_BASE_URL: &str = "http://127.0.0.1:3000";
-const ALLOWED_LAYOUTS: Vec<&str> = [
-    "text", "image", "title", "space", "text-image", "image-text", "image-grid"
-];
    
 live_design!(
     import makepad_widgets::base::*;

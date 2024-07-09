@@ -1,4 +1,4 @@
-use crate::app::{SectionLayout, State};
+use crate::app::{State};
 use makepad_widgets::*;
 
 live_design!{
@@ -220,7 +220,7 @@ live_design!{
         }
     }
 
-    TextImageLSection = <View> {
+    ImageTextSection = <View> {
         width: Fill,
         height: Fit
         flow: Right,
@@ -246,7 +246,7 @@ live_design!{
         }
     }
 
-    TextImageRSection = <View> {
+    TextImageSection = <View> {
         width: Fill,
         height: Fit
         flow: Right,
@@ -335,14 +335,15 @@ impl Widget for Page{
                     // Build the sectionViews from default page data
                     for section in &page.sections {
                         if let Some(section_view_id) = section_views.next_visible_item(cx) {
-                            let template = match section.layout {
-                                SectionLayout::Text => live_id!(TextSection),
-                                SectionLayout::Image => live_id!(ImageSection),
-                                SectionLayout::Title => live_id!(TitleSection),
-                                SectionLayout::Space => live_id!(SpaceSection),
-                                SectionLayout::TextImageL => live_id!(TextImageLSection),
-                                SectionLayout::TextImageR => live_id!(TextImageRSection),
-                                SectionLayout::ImageGrid => live_id!(ImageGridSection),
+                            let template = match section.layout.as_str() {
+                                "text" => live_id!(TextSection),
+                                "image" => live_id!(ImageSection),
+                                "title" => live_id!(TitleSection),
+                                "space" => live_id!(SpaceSection),
+                                "text-image" => live_id!(TextImageSection),
+                                "image-text" => live_id!(ImageTextSection),
+                                "image-grid" => live_id!(ImageGridSection),
+                                _ => live_id!(SpaceSection),
                             };
                             let section_view = section_views.item(cx, section_view_id, template).unwrap();
                             if !section.text.is_empty() {
