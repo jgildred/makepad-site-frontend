@@ -2,13 +2,13 @@
   "name": "Products",
   "sections": [
     {
-      "layout": "Text",
+      "layout": "text",
       "padding": 0,
       "text": "this is the text of the first section",
       "image_url": ""
     },
     {
-      "type": "Text",
+      "layout": "text",
       "padding": 0,
       "text": "this is the text of the first section",
       "image_url": ""

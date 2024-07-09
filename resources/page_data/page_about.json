@@ -2,16 +2,13 @@
   "name": "About",
   "sections": [
     {
-      "layout": "Text",
+      "layout": "text",
       "padding": 0,
-      "text": "this is the text of the first section",
-      "image_url": ""
+      "text": "this is the text of the first section"
     },
     {
-      "type": "Text",
-      "padding": 0,
-      "text": "this is the text of the first section",
-      "image_url": ""
+      "layout": "text",
+      "text": "this is the text of the first section"
     }
   ]
 }

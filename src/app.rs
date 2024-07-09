@@ -2,6 +2,9 @@ use makepad_micro_serde::*;
 use makepad_widgets::*;
 
 const SERVER_BASE_URL: &str = "http://127.0.0.1:3000";
+const ALLOWED_LAYOUTS: Vec<&str> = [
+    "text", "image", "title", "space", "text-image", "image-text", "image-grid"
+];
    
 live_design!(
     import makepad_widgets::base::*;
@@ -64,26 +67,6 @@ impl MatchEvent for App {
                                     self.state.pages.push(page);
                                     }
                                     Err(e) => {
-                                        let s1 = Section {
-                                            layout: SectionLayout::Text,
-                                            padding: 0.0,
-                                            text: "something".to_string(),
-                                            image_url: "http://host/image.jpg".to_string(),
-                                        };
-                                        let s2 = Section {
-                                            layout: SectionLayout::Text,
-                                            padding: 0.0,
-                                            text: "other".to_string(),
-                                            image_url: "http://host/image2.jpg".to_string(),
-                                        };
-                                        let mut ss = Vec::new();
-                                        ss.push(s1);
-                                        ss.push(s2);
-                                        let p = Page {
-                                            name: "Home".to_string(),
-                                            sections: ss
-                                        };
-                                        let j = "{\"name\":\"Home\",\"sections\":[{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"something\",\"image_url\":\"http://host/image.jpg\"},{\"layout\":{\"Text\":[]},\"padding\":0,\"text\":\"other\",\"image_url\":\"http://host/image2.jpg\"}]}";
                                         
                                         //log!("test page: {:?}", p.serialize_json());
                                         log!("Received bad data for page: {:?}", e);
@@ -127,13 +110,8 @@ pub struct SiteConfig {
 }
 
 #[derive(SerJson, DeJson, Debug)]
-pub enum SectionLayout {
-    Text, Image, Space, Title, TextImageL, TextImageR, ImageGrid
-}
-
-#[derive(SerJson, DeJson, Debug)]
 pub struct Section {
-    pub layout: SectionLayout,
+    pub layout: String,
     pub padding: f32,
     pub text: String,
     pub image_url: String,
