@@ -2,16 +2,39 @@
   "name": "Home",
   "sections": [
     {
-      "layout": "text",
+      "layout": "image",
       "padding": 0,
-      "text": "this is the text of the first section",
-      "image_url": ""
+      "image_url": "/makepad_site_frontend/resources/test_image.jpeg"
     },
     {
       "layout": "text",
       "padding": 0,
-      "text": "this is the text of the first section",
-      "image_url": ""
+      "text": "this is the text of the second section"
+    },
+    {
+      "layout": "text",
+      "padding": 0,
+      "text": "this is the text of the third section"
+    },
+    {
+      "layout": "image",
+      "padding": 0,
+      "image_url": "/makepad_site_frontend/resources/test_image.jpeg"
+    },
+    {
+      "layout": "text",
+      "padding": 0,
+      "text": "this is the text of the fourth section"
+    },
+    {
+      "layout": "text",
+      "padding": 0,
+      "text": "this is the text of the fifth section"
+    },
+    {
+      "layout": "text",
+      "padding": 0,
+      "text": "this is the text of the sixth section"
     }
   ]
 }
