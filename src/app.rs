@@ -1,28 +1,29 @@
-use makepad_micro_serde::*;
+//use image_cache::ImageError;
 use makepad_widgets::*;
+use std::path::Path;
+use crate::state::*;
 
-const SERVER_BASE_URL: &str = "http://127.0.0.1:3000";
-   
 live_design!(
     import makepad_widgets::base::*;
     import makepad_widgets::theme_desktop_dark::*;
-    import crate::ui::*;
-    
+    import crate::ui::Ui;
     App = {{App}} {
         ui: <Ui> {}
     }
 );
 
 #[derive(Live, LiveHook)]
-pub struct App {
-    #[live] ui: WidgetRef,
-    #[rust] state: State,
+struct App {
+    #[live]
+    ui: WidgetRef,
+    #[rust]
+    state: State,
 }
 
-impl LiveRegister for App {
-    fn live_register(cx: &mut Cx) {
-        makepad_widgets::live_design(cx);
-        crate::ui::live_design(cx);
+impl App {
+    fn flash_alert(&mut self, _cx: &mut Cx, _alert_text: String) {
+        // let label = self.ui.label(id!(body.top.alert_message.text));
+        // label.set_text_and_redraw(_cx, &_alert_text);
     }
 }
 
@@ -30,7 +31,6 @@ impl MatchEvent for App {
     fn handle_startup(&mut self, _cx: &mut Cx) {
         // Load the site configuration
         self.state.load_config(_cx);
-        
     }
     fn handle_network_responses(&mut self, cx: &mut Cx, responses:&NetworkResponsesEvent ){
         for event in responses{
@@ -39,14 +39,16 @@ impl MatchEvent for App {
                     match event.request_id {
                         live_id!(LoadConfig) => {
                             if response.status_code == 200 {
-                                log!("Received response for config.");
                                 if let Some(config) = response.get_json_body::<SiteConfig>().ok() {
                                     self.state.config = config;
-                                    // Load the default page data (eventually need to add page routes)
-                                    for page in self.state.config.page_order.clone() {
-                                        self.state.load_page(cx, page);
+                                    self.flash_alert(cx, "Config loaded.".to_string());
+                                    // Load data for all pages
+                                    for page in self.state.config.page_order.clone(){
+                                        self.state.load_page(cx, &page);
                                     }
-                                }  
+                                    // Set current page
+                                    self.state.current_page = self.state.config.default_page.clone();
+                                }
                                 else {
                                     log!("Received bad data for site config.");
                                 }
@@ -57,21 +59,35 @@ impl MatchEvent for App {
                         },
                         live_id!(LoadPage) => {
                             if response.status_code == 200 {
-                                log!("i goh a text!");
                                 match response.get_json_body::<Page>() {
                                     Ok(page) => {
-                                        log!("page: {:?}", page);
-                                    self.state.pages.push(page);
+                                        dbg!(&page.name);
+                                        self.state.pages.push(page);
+                                        self.flash_alert(cx, format!("{} pages loaded.", self.state.pages.len()));
+                                        self.ui.portal_list(id!(list)).redraw(cx);
                                     }
                                     Err(e) => {
-                                        
-                                        //log!("test page: {:?}", p.serialize_json());
                                         log!("Received bad data for page: {:?}", e);
                                         self.flash_alert(cx, "Received bad data for page.".to_string());
                                     }
                                 }
                             } else {
                                 self.flash_alert(cx, "Failed to get page data.".to_string());
+                            }
+                        },
+                        live_id!(LoadImage) => if let Some(data) = response.get_body() {
+                            //dbg!(data.len());
+                            //dbg!(response.metadata_id);
+                            let list = self.ui.portal_list(id!(list));
+                            //dbg!(list.item(cx, 0, live_id!(image_section)));
+                            let image = list.item(cx, response.metadata_id.to_string().parse::<usize>().unwrap(), live_id!(image_section)).unwrap().image(id!(image));
+                            image.load_jpg_from_data(cx, data).unwrap();
+                            if image.has_texture() {
+                                image.redraw(cx);
+                                log!("loaded image {:?}",response.metadata_id);
+                            }
+                            else {
+                                log!("couldn't load image");
                             }
                         },
                         _ => (),
@@ -84,64 +100,28 @@ impl MatchEvent for App {
             }
         } 
      }
+     fn handle_actions(&mut self, _cx:&mut Cx, actions:&Actions){
+        let sections = self.ui.portal_list_set(ids!(list));
+        for (item_id, item) in sections.items_with_actions(&actions) {
+            if item.button(id!(likes)).clicked(&actions) {
+                log!("liked {}", item_id);
+            }
+        }
+    }
 }
 
 impl AppMain for App {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event) {
+        self.ui
+            .handle_event(cx, event, &mut Scope::with_data(&mut self.state));
         self.match_event(cx, event);
-        self.ui.handle_event(cx, event, &mut Scope::empty());
     }
 }
 
-impl App {
-    fn flash_alert(&mut self, cx: &mut Cx, alert_text: String) {
-        let label = self.ui.label(id!(body.top.alert_message));
-        label.set_text_and_redraw(cx, &alert_text);
-    } 
-}
-
-#[derive(Default, SerJson, DeJson, Debug)]
-pub struct SiteConfig {
-    pub page_order: Vec<String>,
-    pub default_page: String,
-}
-
-#[derive(SerJson, DeJson, Debug)]
-pub struct Section {
-    pub layout: String,
-    pub padding: f32,
-    pub text: String,
-    pub image_url: String,
-}
-
-#[derive(SerJson, DeJson, Debug)]
-pub struct Page {
-    pub name: String,
-    pub sections: Vec<Section>,
-}
-
-#[derive(Default)]
-pub struct State {
-    pub config: SiteConfig,
-    pub pages: Vec<Page>
-}
-
-impl State {
-    fn load_config(&mut self, cx: &mut Cx) {
-        let completion_url = format!("{}/makepad_site_frontend/resources/page_data/config.json", SERVER_BASE_URL.to_string());
-        let request_id = live_id!(LoadConfig);
-        let request = HttpRequest::new(completion_url, HttpMethod::GET);
-        log!("sent: {}", &request.url);
-        cx.http_request(request_id, request);
-        
-    }
-    fn load_page(&mut self, cx: &mut Cx, page_name: String) {
-        let completion_url = format!("{}/makepad_site_frontend/resources/page_data/page_{}.json", SERVER_BASE_URL.to_string(), page_name.to_ascii_lowercase());
-        let request_id = live_id!(LoadPage);
-        let request = HttpRequest::new(completion_url, HttpMethod::GET);
-        log!("sent: {}", &request.url);
-        cx.http_request(request_id, request);
-        
+impl LiveRegister for App {
+    fn live_register(cx: &mut Cx) {
+        makepad_widgets::live_design(cx);
+        crate::ui::live_design(cx);
     }
 }
 

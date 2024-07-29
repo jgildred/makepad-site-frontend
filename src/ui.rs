@@ -1,7 +1,7 @@
-use crate::app::{State};
+use crate::state::*;
 use makepad_widgets::*;
 
-live_design!{
+live_design!(
     import makepad_widgets::base::*;
     import makepad_widgets::theme_desktop_dark::*;
     import makepad_draw::shader::std::*;
@@ -45,133 +45,22 @@ live_design!{
     COLOR_DIVIDER_DARK = #x00000044
     COLOR_PROFILE_CIRCLE = #xfff8ee
     COLOR_P = #x999
-        
-    FillerY = <View> {width: Fill}
-        
-    FillerX = <View> {height: Fill}
-        
-    Logo = <Button> {
-        draw_icon: {
-            svg_file: (LOGO),
-            fn get_color(self) -> vec4 {
-                return (COLOR_BRAND)
-            }
-        }
-        icon_walk: {width: 7.5, height: Fit}
-        draw_bg: {
-            fn pixel(self) -> vec4 {
-                let sdf = Sdf2d::viewport(self.pos * self.rect_size);
-                return sdf.result
-            }
-        }
-        padding: 9.0
-        text: ""
-    }
-        
-    NavButton = <Button> {
-        draw_text: {
-            instance hover: 0.0
-            instance pressed: 0.0
-            text_style: {
-                font_size: 11.0
-            }
-            fn get_color(self) -> vec4 {
-                return mix(
-                    mix(
-                        (COLOR_META_TEXT),
-                        (COLOR_BRAND),
-                        self.hover
-                    ),
-                    (COLOR_BRAND_HOVER),
-                    self.pressed
-                )
-            }
-        }
-        draw_bg: {
-            fn pixel(self) -> vec4 {
-                let sdf = Sdf2d::viewport(self.pos * self.rect_size);
-                return sdf.result
-            }
-        }
-        padding: 9.0
-        text: "page"
-    }    
+    COLOR_ALERT_TEXT = #xfff8ee
 
-    NavMenu = <View> {
-        width: Fill,
-        height: Fit,
-        margin: 0.0
-        flow: Right,
-        padding: 0.0,
-        spacing: 25.0,
-        align: {x: 0.5, y: 0.5}
+    BG_COLOR = #3
 
-        // These will be populated when site config is loaded            
-        <NavButton> {}
-        <NavButton> {}
-        <NavButton> {}
-        <NavButton> {}
-    }
-        
-    Header = <RoundedYView> {
-        width: Fill,
-        height: 70
-        flow: Right,
-        padding: 10.0,
-        spacing: 10.0
-        draw_bg: {color: (COLOR_OVERLAY_BG), inset: vec4(-0.5, -0.5, -1.0, 0.0), radius: vec2(0.5, 4.5)}
-                
-        <Logo> {
-            height: Fit,
-            width: Fill,
-            margin: {top: 0.0}
-            icon_walk: {width: Fit, height: 27.0}
-        }   
-
-        <NavMenu> {}       
-    }
-
-    Alert = <RoundedYView> {
-        width: Fill,
-        height: 40,
-        flow: Right,
-        padding: 10.0,
-        spacing: 10.0
-
-        draw_bg: {color: (COLOR_ALERT), inset: vec4(-0.5, 0.0, -1.0, -1.0), radius: vec2(4.5, 0.5)}
-        text = <Label> {
-            width: Fill,
-            height: Fit
-            draw_text: {
-                wrap: Word,
-                text_style: <TEXT_P> {},
-                color: (COLOR_P)
-            }
-            text: "no alert"
-        }
-    }
-        
-    LineH = <RoundedView> {
-        width: Fill,
-        height: 2,
-        margin: 0.0
-        padding: 0.0,
-        spacing: 0.0
-        draw_bg: {color: (COLOR_DIVIDER)}
-    }
-        
     TextSection = <View> {
-        width: Fill,
+        width: Fill
         height: Fit
-        flow: Right,
-        padding: 0.0,
-        spacing: 0.0,
-        text = <Label> {
-            width: Fill,
+        flow: Right
+        padding: 0.0
+        spacing: 0.0
+        label = <Label> {
+            width: Fill
             height: Fit
             draw_text: {
-                wrap: Word,
-                text_style: <TEXT_P> {},
+                wrap: Word
+                text_style: <TEXT_P> {}
                 color: (COLOR_P)
             }
             text: "no text"
@@ -186,7 +75,7 @@ live_design!{
         spacing: 0.0
                 
         image = <Image> {
-            source: (IMG_A),
+            //source: (),
             //image_scale: 1.0,
             margin: 0,
             width: Fill,
@@ -203,17 +92,17 @@ live_design!{
     }
 
     TitleSection = <View> {
-        width: Fill,
+        width: Fill
         height: Fit
-        flow: Right,
-        padding: 0.0,
-        spacing: 0.0,
+        flow: Right
+        padding: 0.0
+        spacing: 0.0
         text = <Label> {
-            width: Fill,
+            width: Fill
             height: Fit
             draw_text: {
-                wrap: Word,
-                text_style: <TEXT_P> {},
+                wrap: Word
+                text_style: <TEXT_P> {}
                 color: (COLOR_P)
             }
             text: "no text"
@@ -236,132 +125,136 @@ live_design!{
         }
         text = <Label> {
             width: Fill,
-            height: Fit
+            height: Fit,
             draw_text: {
                 wrap: Word,
                 text_style: <TEXT_P> {},
-                color: (COLOR_P)
-            }
+                color: (COLOR_P),
+            },
             text: "no text"
         }
     }
 
     TextImageSection = <View> {
         width: Fill,
-        height: Fit
+        height: Fit,
         flow: Right,
         padding: 0.0,
-        spacing: 0.0
-
+        spacing: 0.0,
         text = <Label> {
             width: Fill,
-            height: Fit
+            height: Fit,
             draw_text: {
                 wrap: Word,
                 text_style: <TEXT_P> {},
-                color: (COLOR_P)
-            }
+                color: (COLOR_P),
+            },
             text: "no text"
-        }
+        },
         image = <Image> {
             source: (IMG_A),
             //image_scale: 1.0,
             margin: 0,
             width: Fill,
-            height: 200
-        }
+            height: 200,
+        },
     }
 
     ImageGridSection = <View> {}
-       
-    Page = {{Page}} {
-        // This will be populated when page data is loaded 
-        sections = <PortalList> {
-        }
-    }
 
-    /*NewsFeed ={{NewsFeed}}{
-        list = <PortalList>{
-            TopSpace = <View> {height: 80}
-            Post = <Post> {}
-            PostImage = <PostImage> {}
-            BottomSpace = <View> {height: 100}
-        }
-    }*/
-    
-    // This is the top level layout
-    Ui = <Window> {
-        window: {inner_size: vec2(428, 926)},
+    Ui = {{Ui}} {
+        flow: Right
+        padding: { top: 30 }
         show_bg: true
         draw_bg: {
             fn pixel(self) -> vec4 {
-                return (COLOR_BG);
+                return (BG_COLOR);
             }
         }
-        body = {
-            flow: Overlay,
-            padding: 0.0
-            spacing: 0,
-            align: {
-                x: 0.0,
-                y: 0.0
-            },
-            
-            page = <Page> {}
-                                                            
-            top = <View> {
-                flow: Down
-                <Header> {}
-                alert_message = <Alert> {}
-                <FillerY> {}
-            }
+        body = <View> { width: 0, height: 0 }
+        list = <PortalList> {
+            text_section = <TextSection> {}
+            image_section = <ImageSection> {}
+            text_image_section = <TextImageSection> {}
+            image_text_section = <ImageTextSection> {}
+            title_section = <TitleSection> {}
+            space_section = <SpaceSection> {}
+            image_grid_section = <ImageGridSection> {}
         }
     }
-}
+);
 
 #[derive(Live, LiveHook, Widget)]
-pub struct Page{ 
-    #[deref] view:View
+pub struct Ui {
+    #[deref]
+    deref: Window,
 }
 
-// features of the page widget
-impl Widget for Page{
-    fn draw_walk(&mut self, cx:&mut Cx2d, scope:&mut Scope, walk:Walk)->DrawStep{
-        while let Some(page_view) =  self.view.draw_walk(cx, scope, walk).step(){
-            if let Some(state) = scope.data.get_mut::<State>() {
-                let page = state.pages.iter().find(|&p| p.name == state.config.default_page).unwrap();
-                if let Some(mut section_views) = page_view.as_portal_list().borrow_mut() {
-                    section_views.set_item_range(cx, 0, page.sections.len() - 1);
-                    // Build the sectionViews from default page data
-                    for section in &page.sections {
-                        if let Some(section_view_id) = section_views.next_visible_item(cx) {
-                            let template = match section.layout.as_str() {
-                                "text" => live_id!(TextSection),
-                                "image" => live_id!(ImageSection),
-                                "title" => live_id!(TitleSection),
-                                "space" => live_id!(SpaceSection),
-                                "text-image" => live_id!(TextImageSection),
-                                "image-text" => live_id!(ImageTextSection),
-                                "image-grid" => live_id!(ImageGridSection),
-                                _ => live_id!(SpaceSection),
+impl Widget for Ui {
+    fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
+        self.deref.handle_event(cx, event, scope);
+        self.widget_match_event(cx, event, scope);
+    }
+
+    fn draw_walk(&mut self, cx: &mut Cx2d, scope: &mut Scope, walk: Walk) -> DrawStep {
+        while let Some(widget) = self.deref.draw_walk(cx, scope, walk).step() {
+            let pages = scope.data.get::<State>().unwrap().pages.clone();
+            if let Some(page) = pages.iter().find(|&p| p.name ==  scope.data.get::<State>().unwrap().current_page.as_str()) {
+                let range_end = page.sections.len();
+                if let Some(mut list) = widget.as_portal_list().borrow_mut() {
+                    list.set_item_range(cx, 0, range_end);
+                    while let Some(index) = list.next_visible_item(cx) {
+                        if index < range_end {
+                            let template = match page.sections[index].layout.as_str() {
+                                "text" => live_id!(text_section),
+                                "image" => live_id!(image_section),
+                                "title" => live_id!(title_section),
+                                "text-image" => live_id!(text_image_section),
+                                "image-text" => live_id!(image_text_section),
+                                "image-grid" => live_id!(image_grid_section),
+                                _ => live_id!(space_section),
                             };
-                            let section_view = section_views.item(cx, section_view_id, template).unwrap();
-                            if !section.text.is_empty() {
-                                section_view.label(id!(text)).set_text(&section.text);
+                            let item = list.item(cx, index, template).unwrap();
+                            if page.sections[index].text.as_ref().is_some_and(|s| !s.is_empty()) {
+                                item.label(id!(label)).set_text(page.sections[index].text.as_ref().unwrap());
                             }
-                            if !section.image_url.is_empty() {
-                                section_view.image(id!(image)).load_image_dep_by_path(cx, &section.image_url)
-                                        .unwrap();
+                            if template == live_id!(image_section) {
+                                if page.sections[index].image_loaded.is_none() || !page.sections[index].image_loaded.unwrap() {
+                                    let id = LiveId::from_str_with_lut(index.to_string().as_str()).unwrap();
+                                    scope.data.get::<State>().unwrap().update_image(cx, id, page.sections[index].image_url.as_ref().unwrap().to_string());
+                                    scope.data.get_mut::<State>().unwrap().set_image_as_loaded(page.name.clone(), index);
+                                }
+                                else {
+                                    //dbg!(page.sections[index].image_loaded.unwrap());
+                                }
                             }
-                            section_view.draw_all(cx, &mut Scope::empty());
+                            item.draw_all(cx, scope);
                         }
                     }
-                }
-            }
+                }  
+            } 
         }
         DrawStep::done()
     }
-    fn handle_event(&mut self, cx:&mut Cx, event:&Event, scope:&mut Scope){
-        self.view.handle_event(cx, event, scope)
-    } 
+}
+
+impl WidgetMatchEvent for Ui {
+    fn handle_actions(&mut self, cx: &mut Cx, actions: &Actions, scope: &mut Scope) {
+        let state = scope.data.get_mut::<State>().unwrap();
+        let items_with_actions = self
+            .deref
+            .portal_list(id!(list))
+            .items_with_actions(actions);
+
+        let btn_clicked = items_with_actions.iter().find(|(_index, widget)| {
+            match widget.as_button().borrow_mut() {
+                Some(btn) => btn.clicked(actions),
+                None => false,
+            }
+        });
+
+        if let Some((_index, _widget)) = btn_clicked {
+            // do something
+        }
+    }
 }
