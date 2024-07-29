@@ -18,7 +18,7 @@ live_design!(
     ICO_LIKES = dep("crate://self/resources/icon_likes.svg")
     ICO_USER = dep("crate://self/resources/icon_user.svg")
     ICO_ADD = dep("crate://self/resources/icon_add.svg")
-        
+    
     FONT_SIZE_SUB = 9.5
     FONT_SIZE_P = 12.5
         
