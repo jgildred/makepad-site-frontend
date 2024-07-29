@@ -4,7 +4,7 @@
     {
       "layout": "image",
       "padding": 0,
-      "image_url": "/makepad_site_frontend/resources/test_image.jpeg"
+      "image_url": "/makepad_site_frontend/resources/test_image.jpg"
     },
     {
       "layout": "text",
@@ -19,7 +19,7 @@
     {
       "layout": "image",
       "padding": 0,
-      "image_url": "/makepad_site_frontend/resources/test_image.jpeg"
+      "image_url": "/makepad_site_frontend/resources/test_image.jpg"
     },
     {
       "layout": "text",
