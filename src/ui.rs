@@ -76,7 +76,7 @@ live_design!(
     
     Logo = <Button> {
         draw_icon: {
-            svg_file: (LOGO),
+            //svg_file: (LOGO),
             fn get_color(self) -> vec4 {
                 return (COLOR_BRAND)
             }
@@ -90,6 +90,27 @@ live_design!(
         }
         padding: 9.0
         text: ""
+    }
+
+    TextButton = <Button> {
+        draw_text: {
+            instance hover: 0.0
+            instance pressed: 0.0
+            text_style: {
+                font_size: 11.0
+            }
+            fn get_color(self) -> vec4 {
+                return mix(
+                    mix(
+                        (COLOR_META_TEXT),
+                        (COLOR_BRAND),
+                        self.hover
+                    ),
+                    (COLOR_BRAND_HOVER),
+                    self.pressed
+                )
+            }
+        }
     }
     
     IconButton = <Button> {
@@ -112,7 +133,7 @@ live_design!(
             }
         }
         draw_icon: {
-            svg_file: (ICO_FAV),
+            //svg_file: (ICO_FAV),
             fn get_color(self) -> vec4 {
                 return mix(
                     mix(
@@ -152,9 +173,10 @@ live_design!(
         }
         <FillerX>{}
         // need to dynamicallly generate these based on pages
-        homebtn = <IconButton> {draw_icon: {svg_file: (ICO_HOME)} icon_walk: {width: 30.0, height: Fit}, text: ""}
-        findbtn = <IconButton> {draw_icon: {svg_file: (ICO_FIND)} icon_walk: {width: 18.0, height: Fit}, text: ""}
-        profilebtn = <IconButton> {draw_icon: {svg_file: (ICO_USER)} icon_walk: {width: 15.0, height: Fit}, text: ""}
+        //homebtn = <IconButton> {draw_icon: {svg_file: (ICO_HOME)} icon_walk: {width: 30.0, height: Fit}, text: ""}
+        homebtn = <IconButton> {text: "Home"}
+        findbtn = <IconButton> {text: "Products"}
+        profilebtn = <IconButton> {text: "About"}
     }
 
     TextSection = <View> {
@@ -224,7 +246,7 @@ live_design!(
         padding: 0.0,
         spacing: 0.0,
         image = <Image> {
-            source: (IMG_A),
+            //source: (IMG_A),
             //image_scale: 1.0,
             margin: 0,
             width: Fill,
@@ -259,7 +281,7 @@ live_design!(
             text: "no text"
         },
         image = <Image> {
-            source: (IMG_A),
+            //source: (IMG_A),
             //image_scale: 1.0,
             margin: 0,
             width: Fill,

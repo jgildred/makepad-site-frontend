@@ -3,9 +3,6 @@
 use makepad_widgets::*;
 use std::path::Path;
 use crate::state::*;
-//use makepad_wasm_bridge::*;
-//use web_sys::Location;
-//use web_sys::Window;
 
 live_design!(
     import makepad_widgets::base::*;
