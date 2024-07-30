@@ -4,24 +4,16 @@ use std::{any::Any, fmt::Debug};
 use crate::state::*;
 use makepad_widgets::*;
 
+// UI design
+
 live_design!(
     import makepad_widgets::base::*;
     import makepad_widgets::theme_desktop_dark::*;
     import makepad_draw::shader::std::*;
     
-    IMG_A = dep("crate://self/resources/neom-THlO6Mkf5uI-unsplash.jpg")
-    IMG_PROFILE_A = dep("crate://self/resources/profile_1.jpg")
-    IMG_PROFILE_B = dep("crate://self/resources/profile_2.jpg")
-    LOGO = dep("crate://self/resources/scramble_logo.svg")
-    ICO_FAV = dep("crate://self/resources/icon_favorite.svg")
-    ICO_COMMENT = dep("crate://self/resources/icon_comment.svg")
-    ICO_REPLY = dep("crate://self/resources/icon_reply.svg")
-    ICO_HOME = dep("crate://self/resources/icon_home.svg")
-    ICO_FIND = dep("crate://self/resources/icon_find.svg")
-    ICO_LIKES = dep("crate://self/resources/icon_likes.svg")
-    ICO_USER = dep("crate://self/resources/icon_user.svg")
-    ICO_ADD = dep("crate://self/resources/icon_add.svg")
-    
+    // reference resources here that will be pulled into the app binary
+    //ICO_USER = dep("crate://self/resources/icon_user.svg")
+
     FONT_SIZE_SUB = 9.5
     FONT_SIZE_P = 12.5
         
@@ -338,6 +330,8 @@ pub struct Ui {
     #[deref]
     deref: Window,
 }
+
+// widget logic
 
 impl Widget for Ui {
     fn handle_event(&mut self, cx: &mut Cx, event: &Event, scope: &mut Scope) {
