@@ -1,7 +1,11 @@
-//use image_cache::ImageError;
+#![allow(unused)]
+
 use makepad_widgets::*;
 use std::path::Path;
 use crate::state::*;
+//use makepad_wasm_bridge::*;
+//use web_sys::Location;
+//use web_sys::Window;
 
 live_design!(
     import makepad_widgets::base::*;
@@ -22,13 +26,16 @@ struct App {
 
 impl App {
     fn flash_alert(&mut self, _cx: &mut Cx, _alert_text: String) {
-        // let label = self.ui.label(id!(body.top.alert_message.text));
-        // label.set_text_and_redraw(_cx, &_alert_text);
+        //let label = self.ui.label(id!(body.top.alert_message.text));
+        //label.set_text_and_redraw(_cx, &_alert_text);
     }
 }
 
 impl MatchEvent for App {
     fn handle_startup(&mut self, _cx: &mut Cx) {
+        dbg!(_cx.os_type());
+        //let msg = format!("{:?}", _cx.os_type().clone());
+        //self.flash_alert(_cx, msg);
         // Load the site configuration
         self.state.load_config(_cx);
     }
@@ -106,6 +113,12 @@ impl MatchEvent for App {
             if item.button(id!(likes)).clicked(&actions) {
                 log!("liked {}", item_id);
             }
+        }
+        let findbtn = self.ui.button(id!(findbtn));
+        if findbtn.clicked(&actions) {
+            log!("clicked find");
+            self.state.current_page = "About".to_string();
+            self.ui.redraw(_cx);
         }
     }
 }

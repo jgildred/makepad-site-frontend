@@ -1,10 +1,11 @@
+#![allow(unused)]
 use std::{
     fs, path::{Path, PathBuf}
 };
 use makepad_widgets::*;
 use makepad_micro_serde::*;
 
-const SERVER_BASE_URL: &str = "http://127.0.0.1:3000";
+const SERVER_BASE_URL: &str = "http://127.0.0.1:8010";
 
 #[derive(Default)]
 pub struct State {
@@ -42,7 +43,6 @@ impl State {
         cx.http_request(request_id, request);
     }
 }
-
 
 #[derive(Default, SerJson, DeJson, Debug)]
 pub struct SiteConfig {
