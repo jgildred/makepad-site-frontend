@@ -1,65 +1,73 @@
 #![allow(unused)]
-use std::{
-    fs, path::{Path, PathBuf}
-};
+
 use makepad_widgets::*;
 use makepad_micro_serde::*;
 
-const SERVER_BASE_URL: &str = "http://127.0.0.1:8010";
+const ASSETS_PATH: &str = "/assets";
+const DATA_PATH: &str = "/data";
+const ROUTS_PATH: &str = "/r";
 
-#[derive(Default)]
+#[derive(Default, Clone, Debug)]
 pub struct State {
     pub config: SiteConfig,
     pub pages: Vec<Page>,
     pub current_page: String,
+    pub host: String,
+    pub logo_image_loaded: bool,
 }
 
 impl State {
-    pub fn set_image_as_loaded(&mut self, page_name: String, section_number: usize) {
-        if let Some(page) = self.pages.iter_mut().find(|p| p.name == page_name) {
-            page.sections[section_number].image_loaded = Some(true);
+    pub fn fetch_image(cx: &mut Cx, live_id: LiveId, image_url: &String, host: &String) {
+        let mut url = image_url.clone().to_ascii_lowercase();
+        if url.is_empty() {
+            log!("An image url is missing in page section {}.", live_id.to_string());
+            return;
         }
-    }
-    pub fn update_image(&self, cx: &mut Cx, live_id: LiveId, image_url: String) {
-        let completion_url = format!("{}{}", SERVER_BASE_URL.to_string(), image_url.to_ascii_lowercase());
+        // make sure the url starts with '/'
+        if url.chars().nth(0).unwrap() != '/' {
+            url = format!("/{}", url);
+        }
+        let completion_url = format!("{}{}{}", host, ASSETS_PATH.to_string(), url);
         let request_id = live_id!(LoadImage);
         let mut request = HttpRequest::new(completion_url, HttpMethod::GET);
         request.set_metadata_id(live_id);
-        log!("sent: {}", &request.url);
+        log!("fetching: {}", &request.url);
         cx.http_request(request_id, request);
     }
     pub fn load_config(&mut self, cx: &mut Cx) {
-        let completion_url = format!("{}/makepad_site_frontend/resources/page_data/config.json", SERVER_BASE_URL.to_string());
+        let completion_url = format!("{}{}/config.json", self.host, DATA_PATH.to_string());
         let request_id = live_id!(LoadConfig);
         let request = HttpRequest::new(completion_url, HttpMethod::GET);
-        log!("sent: {}", &request.url);
+        log!("fetching: {}", &request.url);
         cx.http_request(request_id, request);
     }
     pub fn load_page(&mut self, cx: &mut Cx, page_name: &String) {
-        let completion_url = format!("{}/makepad_site_frontend/resources/page_data/page_{}.json", SERVER_BASE_URL.to_string(), page_name.to_ascii_lowercase());
+        let completion_url = format!("{}{}/page_{}.json", self.host, DATA_PATH.to_string(), page_name.to_ascii_lowercase());
         let request_id = live_id!(LoadPage);
         let request = HttpRequest::new(completion_url, HttpMethod::GET);
-        //log!("sent: {}", &request.url);
+        log!("fetching: {}", &request.url);
         cx.http_request(request_id, request);
     }
 }
 
-#[derive(Default, SerJson, DeJson, Debug)]
+#[derive(Default, SerJson, DeJson, Clone, Debug)]
 pub struct SiteConfig {
+    pub site_name: String,
+    pub logo_image_url: Option<String>,
     pub page_order: Vec<String>,
-    pub default_page: String,
+    pub default_page: Option<String>,
 }
 
-#[derive(SerJson, DeJson, Clone, Debug)]
+#[derive(Default, SerJson, DeJson, Clone, Debug)]
 pub struct Section {
     pub layout: String,
     pub padding: Option<f32>,
     pub text: Option<String>,
     pub image_url: Option<String>,
-    pub image_loaded: Option<bool>,
+    pub image_cache: Option<Vec<u8>>,
 }
 
-#[derive(SerJson, DeJson, Clone, Debug)]
+#[derive(Default, SerJson, DeJson, Clone, Debug)]
 pub struct Page {
     pub name: String,
     pub sections: Vec<Section>,
